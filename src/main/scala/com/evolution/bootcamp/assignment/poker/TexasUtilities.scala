@@ -1,10 +1,6 @@
 package com.evolution.bootcamp.assignment.poker
 
-import scala.annotation.tailrec
-import scala.collection.immutable
-import scala.math.Ordering.Implicits.seqOrdering
-
-object Utilities {
+object TexasUtilities {
   //finds the sum of a list of cards by their rank value
   def cardsValue(cards: List[Card]): Int = {
     cards.map(_.rank.value).sum
@@ -98,17 +94,10 @@ object Utilities {
 
   //  two cards of the same rank  and return best option
   def pair(allCards: List[Card]): List[Card] = {
-    @tailrec
-    def findPair(cards: List[Card], ref: Card): List[Card] = {
-      cards match {
-        case head :: tail =>
-          if (ref.rank != head.rank) findPair(tail, head)
-          else List(ref, head)
-        case _ => Nil
-      }
-    }
-
-    findPair(allCards.sortBy(_.rank.value).reverse, Card.empty)
+    val groupedCards = allCards.groupBy(card => card.rank.value)
+    val pair = groupedCards.filter(cards => cards._2.length > 1)
+    if (pair.nonEmpty) pair.values.toList.maxBy(group => group.map(_.rank.value).sum)
+    else Nil
   }
 
   //the "fallback" in case no other hand value rule applies
@@ -117,7 +106,7 @@ object Utilities {
   }
 
   //return type is (handValue eg Flush, actual cards eg Ks8s7sAs9s)
-  def findHighestHandValue(hand: List[Card], board: List[Card]): (HandValue, List[Card]) = {
+  def findTexasHighestHandValue(hand: List[Card], board: List[Card]): (HandValue, List[Card]) = {
     val allCards: List[Card] = hand ++ board
 
     if (straightFlush(allCards).nonEmpty) (StraightFlush, straightFlush(allCards))
@@ -200,15 +189,6 @@ object Utilities {
   def sortRanks(ranks: List[List[Rank]], pos: Int): Map[Int, List[List[Rank]]] = {
     ranks.groupBy { rank => rank(pos).value }.toList.sortBy(_._1).toMap
   }
-
-  //  def sortByHighCard(players: List[Player]): Map[String, List[Player]] = {
-  //    val groupedPlayers: Map[String, List[Player]] = players.groupBy { player => player.handValueCardsRanksAsString } //grouped players with same HighCards
-  //    val ranks: List[String] = groupedPlayers.keySet.toList // these ranks are distinct
-  //    val sorted = ranks.sorted.reverse
-  //    Map(sorted map {
-  //      st => (st -> groupedPlayers(st))
-  //    }: _*)
-  //  }
 
   def sortByHighCard(players: List[Player]): Map[String, List[Player]] = {
     val groupedPlayers: Map[String, List[Player]] = players.groupBy { player => player.handValueCardsRanksAsString } //grouped players with same HighCards
