@@ -1,8 +1,6 @@
 # Poker Hand Strength Evaluator
 
-## Task Description
-
-Your task is to develop an algorithm for sorting poker hands according to their strength.
+An algorithm for sorting poker hands according to their strength.
 
 ### Poker Games Supported
 
